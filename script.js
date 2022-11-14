@@ -9,12 +9,15 @@ const buttonNext = document.querySelector('#next');
 const studyBlock = document.querySelector('.study-cards');
 const studyMode = document.querySelector('#study-mode');
 const examMode = document.querySelector('#exam-mode');
+const examCards = document.querySelectorAll('#exam-cards');
+let currentWord = document.querySelector('#current-word');
+let totalWord = document.querySelector('#total-word');
 
 
 
 //Карточки на одной стороне (#card-front) содержат иностранное слово, а на другой (#card-back) — его перевод и пример использования
 function random() {
-  //записала эту штуку отдельными массивами
+  //записала это отдельными массивами
   const words = {
     cat: 'Cat',
     book: 'Book',
@@ -55,15 +58,15 @@ function random() {
   };
 
 
-
+  //рандомный выбор слова
   const randWord = Math.floor(Math.random() * (Object.keys(words).length));
 
   const wordShow = Object.keys(words);
-  cardFront.innerHTML = (wordShow[random]);
-  const translateShow = Object.values(translate);//при перевороте карточки пишет Undefined
-  cardBack.innerHTML = (translateShow[random]);
-  const exampleShow = Object.values(example);//при перевороте карточки пишет Undefined
-  cardExample.innerHTML = (exampleShow[random]);
+  cardFront.innerHTML = (wordShow[randWord]);
+  const translateShow = Object.values(translate);
+  cardBack.innerHTML = (translateShow[randWord]);
+  const exampleShow = Object.values(example);
+  cardExample.innerHTML = (exampleShow[randWord]);
 
 
   return wordShow[randWord];
@@ -77,13 +80,13 @@ flipCard.addEventListener("click", (event) => {
   flipCard.classList.add('active');
 })
 //нумерация карточек
-function makeCounter() {
-  let i = 1;
-  return function () {
-    return i++;
-  };
+currentWord.value = 1;
+totalWord.value = 5;
+
+function conciderWord() {
+  currentWord.value++;
+  currentWord.innerHTML = currentWord.value * 1;
 }
-let counter = makeCounter();
 
 //Перелистывание карточек вперед-назад
 //Наверное допустила ошибку, не работает
@@ -113,9 +116,94 @@ function showSlides(n) {
 }
 
 //Переключение между режимами
-//Добавила класс hidden, работает
+//Добавила класс hidden, но не уверенна,что работает переключение в режим проверки знаний, не появляются карточки
 buttonExam.addEventListener("click", (event) => {
   studyBlock.classList.add("hidden");
   studyMode.classList.add("hidden");
   examMode.classList.remove("hidden");
 })
+
+
+
+//Режим проверки знаний
+
+//переворачиание карточек
+let hasFlippedCard = false;
+let firstCard;
+let secondCard;
+let lockBoard = false;
+
+
+function flipCards() {
+  if (lockBoard) return;
+  if (this === firstCard) return;
+
+  examCards.classList.add('flip');
+  if (!hasFlippedCard) {
+    hasFlippedCard = true;
+    firstCard = this;
+    return
+  }
+
+  secondCard = this;
+
+  checkForMatch();
+}
+
+//сравнение карт
+function checkForMatch() {
+  firstCard.classList.add('correct');//первой карточке добавление класса  correct
+  if (firstCard === secondCard) {
+    firstCard.classList.add('fade-out');//совпадение карточек, записала добавление класса здесь
+    secondCard.classList.add('fade-out');
+    disableCards();
+  } else {
+    secondCard.classList.add('wrong');//если не верно подобраны
+    return;
+  }
+
+  unflipCards();
+}
+
+function disableCards() {
+  firstCard.removeEventListener('click', flipCard);
+  secondCard.removeEventListener('click', flipCard);
+
+  resetBoard();
+}
+
+function unflipCards() {
+  lockBoard = true;
+
+  setTimeout(() => {
+    firstCard.classList.remove('flip');
+    secondCard.classList.remove('flip');
+    resetBoard();
+
+  }, 1500);
+}
+
+//нажатие той же карты,проверка
+function resetBoard() {
+  [hasFlippedCard, lockBoard] = [false, false];
+  [firstCard, secondCard] = [null, null];
+}
+
+//перемешивание карточек по клику на кнопку 
+
+buttonShuffle.addEventListener('click', function() {
+  flipCard.classList.remove("active");
+  setTimeout(() => {
+      random();
+  }, 100);
+});
+
+examCards.forEach(card => card.addEventListener('click', flipCards));
+
+//не могу разобраться как записать если карточки все ушли с поля и вывести alert
+//function finishCard() {
+//  if() {
+//    alert('Вы успешно прошли задание!');
+//  }
+//}
+//finishCard();

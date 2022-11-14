@@ -53,6 +53,7 @@ body {
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
+  backface-visibility: hidden;
 }
 
 .flip-card-front {
@@ -180,6 +181,11 @@ progress {
   justify-content: flex-start;
   gap: 10px;
 }
+
+#exam-cards:focus {
+  outline-color: red;/*записала подсветку сюда, но скорее всего надо присвоить это значение конкретно карточкам*/
+}
+
 
 #exam-mode h3 {
   font-weight: 400;
