@@ -1,3 +1,5 @@
+"use strict";
+
 const currentWord = document.querySelector('#current-word');
 const totalWord = document.querySelector('#total-word');
 const flipCard = document.querySelector('.flip-card');
